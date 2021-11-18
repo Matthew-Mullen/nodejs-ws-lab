@@ -42,6 +42,9 @@ function setupWSServer(server) {
         y: incommingMessage.y,
         frame: incommingMessage.frame
       }
+      wss.clients.forEach((wsClient) => {
+        wsClient.send(JSON.stringify(actorCoordinates));
+      })
     });
     ws.send(JSON.stringify(actorCoordinates));
   });

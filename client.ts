@@ -10,7 +10,9 @@ interface ICoords {
     frame: number;
   }
 }
+
 const DEBUG = false; // Render debug physics entities
+
 function uuid(
   a?: any               // placeholder
 ): string {
@@ -32,13 +34,13 @@ function uuid(
       uuid              // random hex digits
     )
 }
+
 class GameScene extends Phaser.Scene {
   private HOST = window.location.hostname; // localhost and 127.0.0.1 handled
   private PORT = 8080; // change this if needed
 
   private VELOCITY = 100;
   private wsClient?: WebSocket;
-  private player?: Phaser.GameObjects.Sprite;
   private leftKey?: Phaser.Input.Keyboard.Key;
   private rightKey?: Phaser.Input.Keyboard.Key;
   private upKey?: Phaser.Input.Keyboard.Key;
@@ -46,6 +48,7 @@ class GameScene extends Phaser.Scene {
 
   private id = uuid();
   private players: {[key: string]: Phaser.GameObjects.Sprite} = {};
+
   constructor() { super({ key: "GameScene" }); }
 
   /**
@@ -66,11 +69,7 @@ class GameScene extends Phaser.Scene {
     // Initialize the websocket client
     this.wsClient = new WebSocket(`ws://${this.HOST}:${this.PORT}`);
     this.wsClient.onopen = (event) => console.log(event);
-    // TODO: multiplayer functionality
-    this.wsClient.onmessage = (wsMsgEvent) => {
-      console.log(wsMsgEvent)
-    }
-    
+
     this.wsClient.onmessage = (wsMsgEvent) => {
       const allCoords: ICoords = JSON.parse(wsMsgEvent.data);
       for (const playerId of Object.keys(allCoords)) {
@@ -89,7 +88,7 @@ class GameScene extends Phaser.Scene {
           } else {
             player.setX(x);
             player.setY(y);
-            player.setFrame(frame);  
+            player.setFrame(frame);
           }
         } else {
           // We have not seen this player before, create it!
@@ -156,16 +155,14 @@ class GameScene extends Phaser.Scene {
   public update() {
     for (const playerId of Object.keys(this.players)) {
       const player = this.players[playerId];
-  
+
       if (playerId !== this.id) {
-        player.setTint(0x0000aa); // so we can tell our guy apart
+        player.setTint(0x0000aa);
         player.update();
         continue;
       }
-    if (this.players[this.id]) {
-      const player = this.players[this.id];
+
       let moving = false;
-  
       if (this.leftKey && this.leftKey.isDown) {
         (player.body as Phaser.Physics.Arcade.Body).setVelocityX(-this.VELOCITY);
         player.play("left", true);
